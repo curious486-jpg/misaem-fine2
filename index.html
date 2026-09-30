@@ -96,7 +96,7 @@ const KEY='misaemfine.friend.v2',$=s=>document.querySelector(s);
 const SUPABASE_URL='https://kehinavxznqbanetkbpy.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_NGhpiK-r7WZE12jnKE4VoQ_cQsRt0fO';
 const sbReady=!SUPABASE_URL.startsWith('YOUR_')&&!SUPABASE_ANON_KEY.startsWith('YOUR_');
-const supabase=window.supabase&&sbReady?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
+const sb=window.supabase&&sbReady?window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY):null;
 let session=null;
 const num=n=>(n||0).toLocaleString('ko-KR'),won=n=>num(n)+'원';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -340,28 +340,28 @@ function authMsg(msg,err=false){const e=$('#authMsg');e.hidden=!msg;e.textConten
 function authBusy(v){['#authEmail','#authPw'].forEach(x=>$(x).disabled=v)}
 function showUser(){const e=$('#userPill');if(e)e.textContent=session?.user?.email||''}
 async function login(){
-  if(!supabase)return authMsg('사이트 설정이 아직 완료되지 않았습니다. Supabase 설정을 먼저 넣어주세요.',true);
+  if(!sb)return authMsg('사이트 설정이 아직 완료되지 않았습니다. Supabase 설정을 먼저 넣어주세요.',true);
   const email=$('#authEmail').value.trim(),password=$('#authPw').value;
   if(!email||!password)return authMsg('이메일과 비밀번호를 입력하세요.',true);
   authBusy(true);authMsg('로그인 중…');
-  const {data,error}=await supabase.auth.signInWithPassword({email,password});authBusy(false);
+  const {data,error}=await sb.auth.signInWithPassword({email,password});authBusy(false);
   if(error)return authMsg(error.message,true);await enterApp(data.session);
 }
 async function signup(){
-  if(!supabase)return authMsg('사이트 설정이 아직 완료되지 않았습니다. Supabase 설정을 먼저 넣어주세요.',true);
+  if(!sb)return authMsg('사이트 설정이 아직 완료되지 않았습니다. Supabase 설정을 먼저 넣어주세요.',true);
   const email=$('#authEmail').value.trim(),password=$('#authPw').value;
   if(!email||password.length<6)return authMsg('이메일과 비밀번호(6자 이상)를 입력하세요.',true);
   authBusy(true);authMsg('회원가입 중…');
-  const {data,error}=await supabase.auth.signUp({email,password});authBusy(false);
+  const {data,error}=await sb.auth.signUp({email,password});authBusy(false);
   if(error)return authMsg(error.message,true);
   if(data.session) await enterApp(data.session); else authMsg('가입 완료! 이메일 인증을 마친 뒤 로그인하세요.');
 }
-async function logout(){if(supabase)await supabase.auth.signOut();session=null;document.body.classList.add('auth-required');showUser();authMsg('로그아웃되었습니다.');}
+async function logout(){if(sb)await sb.auth.signOut();session=null;document.body.classList.add('auth-required');showUser();authMsg('로그아웃되었습니다.');}
 async function enterApp(s){
   session=s||session;if(!session)return;
   document.body.classList.remove('auth-required');showUser();authMsg('');
   setSy('busy');
-  const {data,error}=await supabase.from('user_data').select('data,updated_at').eq('user_id',session.user.id).maybeSingle();
+  const {data,error}=await sb.from('user_data').select('data,updated_at').eq('user_id',session.user.id).maybeSingle();
   if(error){setSy('err');toast('클라우드 데이터를 불러오지 못했습니다. 이 기기의 데이터는 유지됩니다.');return render()}
   if(data?.data){try{db=mig(data.data);localStorage.setItem(KEY,JSON.stringify(db));}catch(e){toast('클라우드 데이터 형식이 올바르지 않습니다.')}}
   else {saveLocal();await pushCloud(true)}
@@ -371,13 +371,13 @@ let pushT=0;
 function setSy(t){const e=$('#sy');if(e)e.textContent={local:'이 기기에만 저장됩니다',on:'☁️ 동기화됨',busy:'☁️ 저장 중…',err:'☁️ 동기화 실패 (이 기기에는 저장됨)'}[t]||''}
 function pushCloud(immediate=false){
   if(!supabase||!session)return;clearTimeout(pushT);setSy('busy');
-  const run=async()=>{try{const {error}=await supabase.from('user_data').upsert({user_id:session.user.id,data:db,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;setSy('on')}catch(e){console.error(e);setSy('err')}};
+  const run=async()=>{try{const {error}=await sb.from('user_data').upsert({user_id:session.user.id,data:db,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;setSy('on')}catch(e){console.error(e);setSy('err')}};
   if(immediate)run();else pushT=setTimeout(run,500);
 }
 async function initAuth(){
   if(!sbReady){$('#setupHint').textContent='⚠️ 관리자 설정 필요: SUPABASE_URL / SUPABASE_ANON_KEY를 코드에 입력하세요.';return setSy('local')}
-  const {data}=await supabase.auth.getSession();if(data.session)await enterApp(data.session);
-  supabase.auth.onAuthStateChange(async(_event,s)=>{if(s&&!session)await enterApp(s);});
+  const {data}=await sb.auth.getSession();if(data.session)await enterApp(data.session);
+  sb.auth.onAuthStateChange(async(_event,s)=>{if(s&&!session)await enterApp(s);});
 }
 
 /* ---------- 렌더 ---------- */
