@@ -1,4 +1,3 @@
-index.html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -64,59 +63,20 @@ label input,label select,label textarea{margin-top:4px;color:var(--ink);font-siz
 .kv div{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line)}
 @media(max-width:560px){.sr{grid-template-columns:1fr 1fr}.sr b{grid-column:1/-1}.flt{grid-template-columns:1fr}.br{grid-template-columns:1fr 110px}}
 .sb{margin:-2px 0 14px 12px}.sr{display:grid;grid-template-columns:1fr 1.4fr 110px auto;gap:6px;align-items:center;margin-bottom:6px}.sb input{padding:6px 8px}.sr b{font-size:14px;white-space:nowrap}.sb button{min-height:32px;padding:4px 10px}.chip{display:inline-flex;align-items:center;gap:2px;background:var(--acs);border-radius:14px;padding:2px 2px 2px 10px;font-size:13px}.chip button{border:0;background:none;min-height:24px;padding:0 8px}
-
 #appHeader,#tabs,#main{transition:opacity .15s}body.auth-required #appHeader,body.auth-required #tabs,body.auth-required #main{display:none}
-.authbox{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}..authcard{
-  background:var(--card);
-  border:1px solid var(--line);
-  border-radius:14px;
-  padding:20px;
-  max-width:420px;
-  width:100%;
-  box-shadow:0 12px 40px rgba(0,0,0,.08);
-}
+.authbox{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.authcard{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;max-width:420px;width:100%;box-shadow:0 12px 40px rgba(0,0,0,.08)}
 body.auth-required{overflow:hidden}
-
-body.auth-required .authbox{
-  height:100vh;
-  min-height:100vh;
-  overflow:hidden;
-}
-
-body:not(.auth-required) .authbox{
-  display:none;
-}
-
-body.auth-required .app{
-  display:none;
-}
-
-.authcard h1{margin-bottom:6px}
-.authcard .logo{font-size:42px;margin-bottom:6px}
-.authmsg{padding:10px;border-radius:7px;background:var(--acs);margin:10px 0;font-size:13px}
-.autherr{background:var(--ambs);color:var(--amb)}
-.authactions{display:flex;gap:8px;margin-top:10px}
-.authactions button{flex:1}
-
-.userbar{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  flex-wrap:wrap;
-  justify-content:flex-end;
-}
-
-.userpill{
-  font-size:12px;
-  color:var(--mut);
-  background:var(--acs);
-  padding:5px 9px;
-  border-radius:14px;
-  max-width:220px;
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}</style>
+body.auth-required .authbox{height:100vh;min-height:100vh;overflow:hidden}
+body:not(.auth-required) .authbox{display:none}
+body.auth-required .app{display:none}
+.authcard h1{margin-bottom:6px}.authcard .logo{font-size:42px;margin-bottom:6px}
+.authmsg{padding:10px;border-radius:7px;background:var(--acs);margin:10px 0;font-size:13px}.autherr{background:var(--ambs);color:var(--amb)}
+.authactions{display:flex;gap:8px;margin-top:10px}.authactions button{flex:1}
+.userbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.userpill{font-size:12px;color:var(--mut);background:var(--acs);padding:5px 9px;border-radius:14px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+fieldset{border:0;margin:0;padding:0;min-width:0}.ok{background:var(--acs);padding:10px 12px;border-radius:6px}.pn>.wn,.pn>.ok{margin-bottom:12px}summary{cursor:pointer;margin-top:6px}
+</style>
 </head>
 <body class="auth-required">
 <div id="authGate" class="authbox">
@@ -151,6 +111,9 @@ const num=n=>(n||0).toLocaleString('ko-KR'),won=n=>num(n)+'원';
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const uid=()=>Math.random().toString(36).slice(2,8)+Date.now().toString(36);
 const today=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')};
+const pad2=n=>String(n).padStart(2,'0'),ymd=d=>d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());
+const confDue=k=>{const[y,m]=k.split('-').map(Number);return ymd(new Date(y,m-1,0))};
+const supDue=k=>{const[y,m]=k.split('-').map(Number);return ymd(new Date(y,m,0))};
 const mname=k=>{const [y,m]=k.split('-');return y+'년 '+(+m)+'월'};
 const fdt=t=>{const x=new Date(t);return (x.getMonth()+1)+'월 '+x.getDate()+'일 '+String(x.getHours()).padStart(2,'0')+':'+String(x.getMinutes()).padStart(2,'0')};
 const pct=r=>r.toFixed(1)+'%';
@@ -200,7 +163,7 @@ function modal(h,btns){return new Promise(res=>{
 function vHome(){
   const{rows,t}=calc(db.cur),open=db.docs.filter(d=>d.month===db.cur&&(d.st==='ok'||d.st==='hold')).length;
   const cd=(l,v,c)=>`<div class="cd ${c||''}"><span>${l}</span><b>${v}</b></div>`;
-  return `<div class="grid">${cd('이번 달 예산',won(t.bud))}${cd('품의액',won(t.pu))}${cd('실제 지출액',won(t.sp))}${cd('집행잔액',won(t.bal),'ac')}${cd('예산 집행률',pct(t.rate))}</div>
+  return `<p class="mu" style="margin:0 0 8px">${cm().st==='fixed'?'✅ 예산 확정 '+cm().fixedAt+(cm().revs&&cm().revs.length?' / 추경 '+cm().revs.length+'회':''):'⚠️ 예산안 미확정: '+confDue(db.cur)+'까지 확정하세요'}</p><div class="grid">${cd('이번 달 예산',won(t.bud))}${cd('품의액',won(t.pu))}${cd('실제 지출액',won(t.sp))}${cd('집행잔액',won(t.bal),'ac')}${cd('예산 집행률',pct(t.rate))}</div>
   <div class="pn">${bar(t.rate)}<p class="mu" style="margin:8px 0 0">집행잔액은 남은 예산일 뿐, 자유롭게 써도 되는 돈이 아닙니다. 쓰기 전에 품의부터 작성하세요.</p></div>
   ${open?`<p class="wn">지출을 등록하지 않은 품의가 ${open}건 있습니다. <a href="#" onclick="go('doc');return false" style="color:inherit">확인하기</a></p>`:''}
   <section class="pn"><h2>${mname(db.cur)} 과목별 집행현황</h2><div class="scroll"><table><thead><tr><th>과목</th><th>예산</th><th>품의</th><th>지출</th><th>잔액</th></tr></thead><tbody>
@@ -209,6 +172,7 @@ function vHome(){
 }
 
 function vDoc(){
+  if(cm().st!=='fixed')return `<section class="pn"><h2>지출품의 작성</h2><p>이번 달 예산이 아직 확정되지 않았습니다. 예산 탭에서 예산을 확정해야 품의를 쓸 수 있습니다.</p><div class="ac"><button class="pri" onclick="go('bud')">예산 탭으로</button></div></section><section class="pn"><h2>진행 중인 품의</h2><div id="open"></div></section>`;
   const its=cm().items.filter(i=>!i.fixed);
   if(!its.length)return '<section class="pn"><p>품의할 변동 과목이 없습니다. [예산] 탭에서 과목을 추가하세요.</p></section>';
   return `<section class="pn"><h2>지출품의 작성</h2>
@@ -232,6 +196,7 @@ function drawOpen(){
   $('#open').innerHTML=l.length?l.map(rowDoc).join(''):'<p class="mu">진행 중인 품의가 없습니다.</p>';
 }
 async function submitDoc(){
+  if(cm().st!=='fixed')return toast('예산 확정 후 품의할 수 있습니다.');
   const it=cm().items.find(i=>i.id===$('#fi').value),a=Math.round(+$('#fa').value),t=$('#ft').value.trim(),d=$('#fd').value||today(),memo=$('#fm').value.trim();
   if(!(a>0))return toast('품의금액을 입력하세요.');
   if(!t)return toast('품의내용을 입력하세요.');
@@ -295,9 +260,9 @@ function drawList(){
 function vBud(){
   const m=cm(),{t}=calc(db.cur);
   return `<section class="pn"><h2>${mname(db.cur)} 예산편성</h2>
-  <label>총수입(원)<input type="number" inputmode="numeric" value="${m.income||''}" onchange="cm().income=Math.max(0,Math.round(+this.value||0));save();render()"></label>
+  ${bBanner()}<fieldset ${edOK()?'':'disabled'}><label>총수입(원)<input type="number" inputmode="numeric" value="${m.income||''}" onchange="cm().income=Math.max(0,Math.round(+this.value||0));save();render()"></label>
   ${m.items.map(i=>`<div class="br"><input value="${esc(i.name)}" aria-label="과목명" onchange="upd('${i.id}','name',this.value)"><input type="number" inputmode="numeric" value="${i.amt}" aria-label="예산액" ${(i.subs||[]).length&&!i.fixed?'disabled title="목 합계로 자동 계산됩니다"':''} onchange="upd('${i.id}','amt',this.value)"><label><input type="checkbox" ${i.fixed?'checked':''} onchange="upd('${i.id}','fixed',this.checked)">고정</label><button onclick="delItem('${i.id}')">삭제</button></div>${i.fixed?'':subRow(i)}`).join('')}
-  <div class="ac"><button onclick="addItem()">과목 추가</button></div>
+  <div class="ac"><button onclick="addItem()">과목 추가</button></div></fieldset>
   <p>총예산 <b>${won(t.bud)}</b> / 수입에서 예산을 뺀 금액 <b class="${m.income-t.bud<0?'neg':''}">${won(m.income-t.bud)}</b></p>
   <p class="mu">고정 과목(공과금, 변제금, 저축 등)은 품의 없이 전액 집행된 것으로 계산합니다.</p></section>`;
 }
@@ -314,6 +279,50 @@ function updSub(id,k,f,v){const it=cm().items.find(x=>x.id===id),x=it.subs[k];
 function delSub(id,k){const it=cm().items.find(x=>x.id===id);
   if(db.docs.some(d=>d.item===id&&d.sub===it.subs[k].name&&d.st!=='void'))return toast('품의가 있는 목은 삭제할 수 없습니다.');
   it.subs.splice(k,1);sync(it);save();render()}
+const edOK=()=>{const m=cm();return !m.st||m.st==='draft'||!!m.sup};
+function bBanner(){
+  const m=cm(),k=db.cur,td=today();
+  if(m.sup)return `<div class="wn"><b>추가경정 진행 중</b><br>사유: ${esc(m.sup.reason)}<div class="ac"><button class="pri" onclick="supDone()">추경 확정</button><button onclick="supCancel()">추경 취소</button></div></div>`;
+  if(m.st==='fixed'){const late=td>supDue(k);return `<div class="ok"><b>✅ 예산 확정</b> (${m.fixedAt})<br><span class="mu">예산이 고정되어 있습니다. 추가경정은 ${supDue(k)}까지 가능합니다${late?' (기한 경과: 더 이상 변경할 수 없습니다)':''}.</span><div class="ac"><button ${late?'disabled':''} onclick="supStart()">추가경정</button></div>${(m.revs||[]).length?`<details><summary>추경 이력 ${m.revs.length}건</summary>${m.revs.map(v=>`<div class="mu" style="margin-top:6px"><b>${v.n}차 (${v.at})</b> ${won(v.bud0)} → ${won(v.bud1)}<br>사유: ${esc(v.reason)}<br>${v.changes.map(c=>esc(c)).join('<br>')}</div>`).join('')}</details>`:''}</div>`}
+  const late=td>confDue(k);
+  return `<div class="wn"><b>예산안 (미확정)</b><br>예산 확정은 ${confDue(k)}까지 가능합니다${late?' (기한 경과: 확정하려면 소명이 필요합니다)':''}. 확정해야 품의를 쓸 수 있습니다.<div class="ac"><button class="pri" onclick="confirmBud()">예산 확정</button></div></div>`;
+}
+async function confirmBud(){
+  const m=cm(),k=db.cur,{t}=calc(k),late=today()>confDue(k);
+  const r=await modal(`<h3>예산을 확정할까요?</h3><p>총예산 <b>${won(t.bud)}</b>${m.income?' / 총수입 '+won(m.income):''}</p>${m.income&&t.bud>m.income?'<p class="wn">총예산이 총수입보다 큽니다.</p>':''}<p>확정한 뒤에는 추가경정을 해야 예산을 바꿀 수 있고, 추경은 ${supDue(k)}까지만 가능합니다.</p>${late?`<p class="wn">확정 기한(${confDue(k)})이 지났습니다. 기한 후 확정은 클린재정에 등재되고 소명이 필요합니다.</p><label>소명<textarea id="rs" rows="3"></textarea></label>`:''}`,
+    [{t:'취소',r:null},{t:'예산 확정',c:'pri',ok:o=>!late||o.querySelector('#rs').value.trim(),m:'소명 내용을 입력하세요.',v:o=>({rs:late?o.querySelector('#rs').value.trim():''})}]);
+  if(!r)return;
+  m.st='fixed';m.fixedAt=today();if(late)m.late=r.rs;
+  save();render();toast('예산이 확정되었습니다. 이제 품의를 쓸 수 있습니다.');
+}
+async function supStart(){
+  const m=cm(),k=db.cur;if(today()>supDue(k))return toast('추가경정 기한이 지났습니다.');
+  const r=await modal(`<h3>추가경정</h3><p>확정된 예산을 바꾸는 절차입니다. 이력에 남고, ${supDue(k)}까지만 가능합니다.</p><label>추경 사유<textarea id="rs" rows="3" placeholder="왜 예산을 바꿔야 하나요?"></textarea></label>`,
+    [{t:'취소',r:null},{t:'추경 시작',c:'pri',ok:o=>o.querySelector('#rs').value.trim(),m:'추경 사유를 입력하세요.',v:o=>o.querySelector('#rs').value.trim()}]);
+  if(!r)return;
+  m.sup={reason:r,at:today(),snap:JSON.stringify({income:m.income,items:m.items})};save();render();toast('예산을 수정한 뒤 [추경 확정]을 누르세요.');
+}
+function diffB(a,b){
+  const o=[],ai=Object.fromEntries(a.items.map(i=>[i.id,i])),bi=Object.fromEntries(b.items.map(i=>[i.id,i]));
+  if(a.income!==b.income)o.push(`총수입 ${num(a.income)} → ${num(b.income)}`);
+  b.items.forEach(i=>{const x=ai[i.id];if(!x)o.push(`${i.name} 신설 ${num(i.amt)}`);else{if(x.amt!==i.amt)o.push(`${i.name} ${num(x.amt)} → ${num(i.amt)}`);if(x.name!==i.name)o.push(`과목명 ${x.name} → ${i.name}`)}});
+  a.items.forEach(i=>{if(!bi[i.id])o.push(`${i.name} 삭제`)});
+  return o;
+}
+async function supDone(){
+  const m=cm(),k=db.cur,a=JSON.parse(m.sup.snap),{rows,t}=calc(k);
+  const bad=rows.find(r=>r.bal<0||(r.subs||[]).some(x=>x.bal<0));
+  if(bad)return modal(`<h3>⚠️ 추경을 확정할 수 없습니다</h3><p>「${esc(bad.it.name)}」의 예산이 이미 품의·지출한 금액보다 적습니다. 예산을 늘리거나 품의를 취소하세요.</p>`,[{t:'확인',c:'pri',r:1}]);
+  const ch=diffB(a,m);
+  if(!ch.length){delete m.sup;save();render();return toast('변경 내용이 없어 추경을 종료했습니다.')}
+  if(!await modal(`<h3>추경을 확정할까요?</h3><p>${ch.map(c=>esc(c)).join('<br>')}</p>`,[{t:'계속 수정',r:0},{t:'추경 확정',c:'pri',r:1}]))return;
+  m.revs=m.revs||[];m.revs.push({n:m.revs.length+1,at:today(),reason:m.sup.reason,changes:ch,bud0:a.items.reduce((x,i)=>x+i.amt,0),bud1:t.bud});
+  delete m.sup;save();render();toast('추가경정이 확정되었습니다.');
+}
+async function supCancel(){
+  if(!await modal('<h3>추경을 취소할까요?</h3><p>수정한 내용은 버려지고 확정된 예산으로 돌아갑니다.</p>',[{t:'계속 수정',r:0},{t:'추경 취소',c:'pri',r:1}]))return;
+  const m=cm(),a=JSON.parse(m.sup.snap);m.income=a.income;m.items=a.items;delete m.sup;save();render();toast('추경을 취소했습니다.');
+}
 function upd(id,k,v){
   const i=cm().items.find(x=>x.id===id);
   if(k==='name')i.name=v.trim()||'과목';else if(k==='amt')i.amt=Math.max(0,Math.round(+v||0));else i.fixed=v;
@@ -338,12 +347,12 @@ async function addMonth(){
 }
 
 function subRows(r,rt){return (r.subs||[]).map(s=>`<tr class="fx"><td>&emsp;└ ${esc(s.name)}</td><td>${num(s.bud)}</td><td>${num(s.pu)}</td><td>${num(s.sp)}</td><td class="${s.bal<0?'neg':''}">${num(s.bal)}</td>${rt?`<td>${pct(s.rate)}</td>`:''}</tr>`).join('')}
-const flags=()=>db.docs.filter(d=>d.flag);
+const flags=()=>db.docs.filter(d=>d.flag),lates=()=>Object.entries(db.months).filter(([k,m])=>m.late),nflag=()=>flags().length+lates().length;
 function vClean(){
-  const l=flags().sort((a,b)=>b.flagAt-a.flagAt),nm=d=>{const m=db.months[d.month],it=m&&m.items.find(i=>i.id===d.item);return (it?it.name:'(삭제된 과목)')+(d.sub?' / '+d.sub:'')};
-  if(!l.length)return '<section class="pn"><h2>클린재정</h2><p>지적사항이 없습니다. 24시간 대기를 잘 지키고 있어요. ✨</p><p class="mu">대기 시간이 지나기 전에 지출하면 이곳에 등재되고, 소명 내용이 함께 기록됩니다.</p></section>';
+  const lt=lates(),l=flags().sort((a,b)=>b.flagAt-a.flagAt),nm=d=>{const m=db.months[d.month],it=m&&m.items.find(i=>i.id===d.item);return (it?it.name:'(삭제된 과목)')+(d.sub?' / '+d.sub:'')};
+  if(!l.length&&!lt.length)return '<section class="pn"><h2>클린재정</h2><p>지적사항이 없습니다. 24시간 대기를 잘 지키고 있어요. ✨</p><p class="mu">대기 시간이 지나기 전에 지출하면 이곳에 등재되고, 소명 내용이 함께 기록됩니다.</p></section>';
   const tot=l.reduce((a,d)=>a+(d.st==='done'?d.paid:0),0);
-  return `<section class="pn"><h2>클린재정 지적사항</h2><p>총 <b>${l.length}건</b> / 지출액 <b>${won(tot)}</b></p><p class="mu">24시간 대기 시간 전에 지출한 내역과 소명 기록입니다.</p></section>`+l.map(d=>`<article class="dc hold"><div class="t"><b>${esc(d.title)}</b><span class="bd">${mname(d.month)}</span></div><div class="mu">${esc(nm(d))}</div><div>품의 ${won(d.amt)}${d.st==='done'?' / 지출 '+won(d.paid):' / 지출 취소됨'}</div><div class="mu">대기 시간 약 ${d.leftH}시간을 남기고 지출 (${fdt(d.flagAt)})</div><div class="wn" style="margin-top:6px"><b>소명</b> ${esc(d.reason)}</div></article>`).join('');
+  return `<section class="pn"><h2>클린재정 지적사항</h2><p>총 <b>${l.length+lt.length}건</b> / 지출액 <b>${won(tot)}</b></p><p class="mu">24시간 대기 시간 전에 지출했거나 예산 확정 기한을 넘긴 내역과 소명 기록입니다.</p></section>`+l.map(d=>`<article class="dc hold"><div class="t"><b>${esc(d.title)}</b><span class="bd">${mname(d.month)}</span></div><div class="mu">${esc(nm(d))}</div><div>품의 ${won(d.amt)}${d.st==='done'?' / 지출 '+won(d.paid):' / 지출 취소됨'}</div><div class="mu">대기 시간 약 ${d.leftH}시간을 남기고 지출 (${fdt(d.flagAt)})</div><div class="wn" style="margin-top:6px"><b>소명</b> ${esc(d.reason)}</div></article>`).join('')+lt.map(([k,m])=>`<article class="dc hold"><div class="t"><b>예산 확정 기한 후 확정</b><span class="bd">${mname(k)}</span></div><div class="mu">기한 ${confDue(k)} / 확정일 ${m.fixedAt}</div><div class="wn" style="margin-top:6px"><b>소명</b> ${esc(m.late)}</div></article>`).join('');
 }
 function vSum(){
   const{rows,t}=calc(db.cur),m=cm(),open=db.docs.filter(d=>d.month===db.cur&&(d.st==='ok'||d.st==='hold')).length;
@@ -383,6 +392,17 @@ async function resetAll(){
   if(!await modal('<h3>전체 초기화</h3><p>모든 예산, 품의, 지출 기록이 삭제됩니다. 먼저 백업을 받아 두세요.</p>',[{t:'취소',r:0},{t:'전체 삭제',c:'pri',r:1}]))return;
   db=seed();save();render();toast('초기화했습니다.');
 }
+
+/* ---------- 렌더 ---------- */
+const V={home:vHome,doc:vDoc,list:vList,bud:vBud,sum:vSum,cln:vClean,set:vSet},A={doc(){if($('#fi')){subs();prev()}if($('#open'))drawOpen()},list:drawList};
+const TB=[['home','현황'],['doc','품의'],['list','내역'],['bud','예산'],['sum','결산'],['cln','클린재정'],['set','설정']];
+function render(){
+  $('#mo').innerHTML=Object.keys(db.months).sort().map(k=>`<option value="${k}" ${k===db.cur?'selected':''}>${mname(k)}</option>`).join('');
+  $('#tabs').innerHTML=TB.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${k==='cln'&&nflag()?n+' '+nflag():n}</button>`).join('');
+  $('#main').innerHTML=V[tab]();if(A[tab])A[tab]();
+}
+function go(t){tab=t;render();window.scrollTo(0,0)}
+render();
 
 /* ---------- 계정 / 클라우드 ---------- */
 function authMsg(msg,err=false){const e=$('#authMsg');e.hidden=!msg;e.textContent=msg;e.className='authmsg'+(err?' autherr':'')}
@@ -428,18 +448,6 @@ async function initAuth(){
   const {data}=await sb.auth.getSession();if(data.session)await enterApp(data.session);
   sb.auth.onAuthStateChange(async(_event,s)=>{if(s&&!session)await enterApp(s);});
 }
-
-/* ---------- 렌더 ---------- */
-const V={home:vHome,doc:vDoc,list:vList,bud:vBud,sum:vSum,cln:vClean,set:vSet},A={doc(){if($('#fi')){subs();prev();drawOpen()}},list:drawList};
-const TB=[['home','현황'],['doc','품의'],['list','내역'],['bud','예산'],['sum','결산'],['cln','클린재정'],['set','설정']];
-function render(){
-  $('#mo').innerHTML=Object.keys(db.months).sort().map(k=>`<option value="${k}" ${k===db.cur?'selected':''}>${mname(k)}</option>`).join('');
-  $('#tabs').innerHTML=TB.map(([k,n])=>`<button class="${k===tab?'on':''}" onclick="go('${k}')">${k==='cln'&&flags().length?n+' '+flags().length:n}</button>`).join('');
-  $('#main').innerHTML=V[tab]();if(A[tab])A[tab]();
-}
-function go(t){tab=t;render();window.scrollTo(0,0)}
-render();
-
 initAuth();
 </script>
 </body>
