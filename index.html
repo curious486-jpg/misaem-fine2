@@ -370,7 +370,7 @@ async function enterApp(s){
 let pushT=0;
 function setSy(t){const e=$('#sy');if(e)e.textContent={local:'이 기기에만 저장됩니다',on:'☁️ 동기화됨',busy:'☁️ 저장 중…',err:'☁️ 동기화 실패 (이 기기에는 저장됨)'}[t]||''}
 function pushCloud(immediate=false){
-  if(!supabase||!session)return;clearTimeout(pushT);setSy('busy');
+  if(!sb||!session)return;clearTimeout(pushT);setSy('busy');
   const run=async()=>{try{const {error}=await sb.from('user_data').upsert({user_id:session.user.id,data:db,updated_at:new Date().toISOString()},{onConflict:'user_id'});if(error)throw error;setSy('on')}catch(e){console.error(e);setSy('err')}};
   if(immediate)run();else pushT=setTimeout(run,500);
 }
