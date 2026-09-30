@@ -76,12 +76,47 @@ label input,label select,label textarea{margin-top:4px;color:var(--ink);font-siz
   box-shadow:0 12px 40px rgba(0,0,0,.08);
 }
 body.auth-required{overflow:hidden}
+
 body.auth-required .authbox{
   height:100vh;
   min-height:100vh;
   overflow:hidden;
-}.authcard h1{margin-bottom:6px}.authcard .logo{font-size:42px;margin-bottom:6px}.authmsg{padding:10px;border-radius:7px;background:var(--acs);margin:10px 0;font-size:13px}.autherr{background:var(--ambs);color:var(--amb)}.authactions{display:flex;gap:8px;margin-top:10px}.authactions button{flex:1}.userbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}.userpill{font-size:12px;color:var(--mut);background:var(--acs);padding:5px 9px;border-radius:14px;max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-</style>
+}
+
+body:not(.auth-required) .authbox{
+  display:none;
+}
+
+body.auth-required .app{
+  display:none;
+}
+
+.authcard h1{margin-bottom:6px}
+.authcard .logo{font-size:42px;margin-bottom:6px}
+.authmsg{padding:10px;border-radius:7px;background:var(--acs);margin:10px 0;font-size:13px}
+.autherr{background:var(--ambs);color:var(--amb)}
+.authactions{display:flex;gap:8px;margin-top:10px}
+.authactions button{flex:1}
+
+.userbar{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.userpill{
+  font-size:12px;
+  color:var(--mut);
+  background:var(--acs);
+  padding:5px 9px;
+  border-radius:14px;
+  max-width:220px;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}</style>
 </head>
 <body class="auth-required">
 <div id="authGate" class="authbox">
